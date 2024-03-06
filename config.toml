@@ -2,8 +2,8 @@
 url='https://www.themuse.com/api/public/jobs?page=50'
 
 [aws]
-bucket='de-exercise-data-bucket'
-folder='input/'
+bucket='wcd-week3-python-project'
+folder='csv_files/'
 
 [run]
 py_script="run_v2.py"
