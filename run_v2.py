@@ -41,12 +41,12 @@ def company_to_csv_date():
     df_final['Published']=pd.to_datetime(df_final['Published']).dt.tz_localize(None).dt.strftime('%Y-%m-%d')
     df_final.drop('Location', axis=1, inplace=True)
     df_final = df_final.reindex(columns=['Company','Country','City','Job','Job_Type','Published'])
-    df_final.to_csv('job.csv',index=False)
+    df_final.to_csv('jobs.csv',index=False)
 company_to_csv_date()        
-print('datafrme saved to local')
+print('dataframe saved to local')
 
 # use linux command to upload file to S3
-subprocess.run(['aws', 's3', 'cp', 'jobs2.csv', 's3://de-exercise-data-bucket/input/job2.csv'])
+subprocess.run(['aws', 's3', 'cp', 'jobs.csv', 's3://wcd-week3-python-project/csv_files/jobs.csv'])
 # Success.
 print('File uploading Done!')
 
