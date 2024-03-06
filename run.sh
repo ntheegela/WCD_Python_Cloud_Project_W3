@@ -1,18 +1,8 @@
 #!/bin/bash
-shopt -s xpg_echo 
-
 ##########################################################
-# Part 2: SET DEFAUL VARIABLES
-HOST=$HOSTNAME
+# Part 2: SET DEFAULT VARIABLES
 
-SHORT_DATE=`date '+%Y-%m-%d'`
-
-TIME=`date '+%H%M'`
-
-SCRIPT_TYPE=`basename $0 | cut -d '.' -f1` ##(get the first line of the file )
-
-filenametime1=$(date +"%m%d%Y%H%M%S")
-filenametime2=$(date +"%Y-%m-%d %H:%M:%S")
+filenametime=$(date +"%Y-%m-%d %H:%M:%S")
 #########################################################
 # Part 2: SET VARIABLES 
 
@@ -20,9 +10,9 @@ filenametime2=$(date +"%Y-%m-%d %H:%M:%S")
 export PYTHON_SCRIPT_NAME=$(cat config.toml | grep 'py_script' | awk -F"=" '{print $2}' | tr -d '"') # get the py_script from config.toml, and remove the quotes
 export SCRIPTS_FOLDER=$(pwd)
 export LOGDIR=$SCRIPTS_FOLDER/log
-export LOG_FILE=${LOGDIR}/${SHELL_SCRIPT_NAME}_${filenametime1}.log
+export LOG_FILE=${LOGDIR}/${SHELL_SCRIPT_NAME}_${filenametime}.log
 #########################################################
-# PART 3: GO TO SCRIPT FOLDER AND RUN
+# PART 3: GO TO THE SCRIPT FOLDER AND RUN
 cd ${SCRIPTS_FOLDER}
 
 #########################################################
