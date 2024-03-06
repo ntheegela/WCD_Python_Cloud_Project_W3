@@ -4,73 +4,51 @@ This is the main file for the py_cloud project. It can be used at any situation
 """
 import requests
 import json
-import toml
 import pandas as pd
-from collections import ChainMap
-from dotenv import load_dotenv
-import os
-import subprocess
+def company_to_csv_date():
+    url = "https://www.themuse.com/api/public/jobs?page=50"
+    req = requests.get(url)
+    content = req.json()
+    company_list=[]
+    publication_list=[]
+    job_list=[]
+    job_type_list=[]
+    location_list=[]
+    for i in content['results']:
+        company =i['company']['name']
+        company_list.append(company)
+        company_name={'Company':company_list}
+        publication_date=i['publication_date'] 
+        publication_list.append(publication_date)
+        pulished_date={'Published':publication_list}
+        job_name=i['name']
+        job_list.append(job_name)
+        job={'Job':job_list}
+        job_type=i['type']
+        job_type_list.append(job_type)
+        typeof_job={'Job_Type':job_type_list}
+        for loc_name in i['locations']:
+            location=loc_name['name']
+            location_list.append(location)
+            location_name={'Location':location_list}
+    df_comp=pd.DataFrame(company_name)
+    df_location=pd.DataFrame(location_name)
+    df_job=pd.DataFrame(job)
+    df_jobtype=pd.DataFrame(typeof_job)
+    df_publ=pd.DataFrame(pulished_date)
+    df_final=pd.concat([df_comp,df_location,df_job,df_jobtype,df_publ],axis=1)
+    df_final[['City','Country']]=df_final['Location'].astype(str).str.split(',',expand=True)
+    df_final['Published']=pd.to_datetime(df_final['Published']).dt.tz_localize(None).dt.strftime('%Y-%m-%d')
+    df_final.drop('Location', axis=1, inplace=True)
+    df_final = df_final.reindex(columns=['Company','Country','City','Job','Job_Type','Published'])
+    df_final.to_csv('job.csv',index=False)
+company_to_csv_date()        
+print('datafrme saved to local')
 
-
-def read_api(url):
-    """
-    Reads the API and returns the response
-    """
-    response = requests.get(url)
-    return response.json()
-
-# main function
-if __name__=='__main__':
-    app_config = toml.load('config.toml')
-    url = app_config['api']['url']
-
-    # read the API
-    print('Reading the API...')
-    data=read_api(url)
-    print('API Reading Done!')
-
-    # the company name
-    print('Building the dataframe...')
-    company_list = [data['results'][i]['company']['name'] for i in range(len(data['results']))]
-    company_name = {'company':company_list}
-
-    # the locations
-    location_list = [data['results'][i]['locations'][0]['name'] for i in range(len(data['results']))]
-    location_name = {'locations':location_list}
-    
-    # the job name
-    job_list = [data['results'][i]['name'] for i in range(len(data['results']))]
-    job_name = {'job':job_list}
-
-    # the job type
-    job_type_list = [data['results'][i]['type'] for i in range(len(data['results']))]
-    job_type = {'job_type':job_type_list}
-
-    # the publication date
-    publication_date_list = [data['results'][i]['publication_date'] for i in range(len(data['results']))]
-    publication_date = {'publication_date':publication_date_list}
-
-    # merge the dictionaries with ChainMap and dict "from collections import ChainMap"
-    data = dict(ChainMap(company_name, location_name, job_name, job_type, publication_date))
-    df=pd.DataFrame.from_dict(data)
-
-    # Cut publication date to date
-    df['publication_date'] = df['publication_date'].str[:10]
-
-    # split location to city and country and drop the location column
-    df['city'] = df['locations'].str.split(',').str[0]
-    df['country'] = df['locations'].str.split(',').str[1]
-    df.drop('locations', axis=1, inplace=True)
-
-    # save the dataframe to a csv file locally first
-    df.to_csv('jobs2.csv', index=False)
-    print('datafrme saved to local')
-
-    # use linux command to upload file to S3
-    subprocess.run(['aws', 's3', 'cp', 'jobs2.csv', 's3://de-exercise-data-bucket/input/job2.csv'])
-  
-    # Success.
-    print('File uploading Done!')
+# use linux command to upload file to S3
+subprocess.run(['aws', 's3', 'cp', 'jobs2.csv', 's3://de-exercise-data-bucket/input/job2.csv'])
+# Success.
+print('File uploading Done!')
 
 
 
