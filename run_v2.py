@@ -5,6 +5,7 @@ This is the main file for the py_cloud project. It can be used at any situation
 import requests
 import json
 import pandas as pd
+import subprocess
 def company_to_csv_date():
     url = "https://www.themuse.com/api/public/jobs?page=50"
     req = requests.get(url)
